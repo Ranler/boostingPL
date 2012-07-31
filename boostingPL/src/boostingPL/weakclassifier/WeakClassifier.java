@@ -29,7 +29,7 @@ import boostingPL.core.Instances;
 
 public abstract class WeakClassifier implements Writable {
 	
-	/** corresponding weight of weak classifier, need for AdaBoost */
+	/** corresponding weight of weak classifier, needed for AdaBoost */
 	private double corWeight;
 	
 	public double getCorWeight() {
@@ -64,8 +64,9 @@ public abstract class WeakClassifier implements Writable {
 	 * 
 	 * @param insts training samples
 	 * @param weights training samples' weights
+	 * @param workResp training samples' working response, needed for LogitBoost
 	 */
-	public abstract void learnWeakClassifier(Instances insts, double[] weights);
+	public abstract void learnWeakClassifier(Instances insts, double[] weights, double[] workResp);
 	
 	/**
 	 * Classifies the given test instance.

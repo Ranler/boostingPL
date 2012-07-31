@@ -39,6 +39,7 @@ import boostingPL.weakclassifier.WeakClassifierHelper;
 public class AdaBoost {
 
 	private Instances insts;
+	
 	private int numInterations;
 	
 	private WeakClassifier[] classifiers;
@@ -59,7 +60,7 @@ public class AdaBoost {
 		
 		for (int t = 0; t < numInterations; ++t){
 			classifiers[t] = WeakClassifierHelper.newInstance();
-			classifiers[t].learnWeakClassifier(insts, weights);
+			classifiers[t].learnWeakClassifier(insts, weights, null);
 			
 			double e = weightError(weights, t);
 			if(e >= 0.5) {

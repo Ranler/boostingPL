@@ -65,7 +65,7 @@ public class DecisionStump extends WeakClassifier {
 	}
 	
 	@Override
-	public void learnWeakClassifier(Instances insts, double[] weights) {
+	public void learnWeakClassifier(Instances insts, double[] weights, double[] workingResp) {
 		// TODO 重写
 		double[][] samples = new double[insts.numInstances()][insts.numAttributes()];
 		for (int i = 0; i < samples.length; i++) {
@@ -181,7 +181,7 @@ public class DecisionStump extends WeakClassifier {
 			weights[i] = 1.0;
 		}
 		DecisionStump ds = new DecisionStump();
-		ds.learnWeakClassifier(insts, weights);
+		ds.learnWeakClassifier(insts, weights, null);
 		System.out.println("DecisionStump Train Over");
 
 		int rightCount = 0;

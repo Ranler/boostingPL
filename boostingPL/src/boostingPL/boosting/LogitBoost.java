@@ -18,6 +18,9 @@
 
 package boostingPL.boosting;
 
+import boostingPL.core.Instances;
+import boostingPL.weakclassifier.WeakClassifier;
+
 /**
  * Logit Adaptive Boosting
  * 
@@ -25,5 +28,22 @@ package boostingPL.boosting;
  *
  */
 public class LogitBoost {
+	
+	private Instances insts;
+	
+	private int numInterations;
+	
+	private WeakClassifier[] classifiers;
+	
 
+	public LogitBoost(Instances insts, int numInterations){
+		this.insts = insts;
+		this.numInterations = numInterations;
+		this.classifiers = new WeakClassifier[numInterations];
+	}
+	
+	public boolean run() {
+		
+		return true;
+	}
 }
