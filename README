@@ -1,0 +1,52 @@
+BoostingPL - Scalable and Parallel Boosting with MapReduce
+
+
+What is BoostingPL?
+
+  BoostingPL is a scalable and parallel machine learning tools for Boosting
+  (What is Boosting? http://en.wikipedia.org/wiki/Boosting).
+
+  This Project is based on this paper:
+ 
+      Indranil Palit and Chandan K. Reddy, "Scalable and Parallel Boosting
+      with MapReduce", IEEE Transactions on Knowledge and Data Engineering
+      (TKDE), 2012.
+   
+  If you want to know the theory and demonstration of algorithms in BoostingPL
+  , this paper provides references for further reading.
+
+  The MapReduce platform we used is Apache Hadoop(http://hadoop.apache.org/)
+  , which is an opensource project and is more popular than other 
+  implementations of MapReduce. You can deploy it on Amazon EC2 or your own 
+  cluster.
+
+
+Boosting Classifiers:
+
+  At present we have implemented these classifiers:
+
+    * Boosting Classifiers
+      - AdaBoost
+      - AdaBoostPL
+      - LogitBoost
+      - LogitBoostPL
+
+    * Weak Classifiers:
+      - DecisionStump
+
+
+Getting Started:
+
+   See http:///
+
+
+Documentation:
+
+
+TEST ENVIRONMENT:
+
+Cloudera CDH4 Hadoop 0.20.2
+
+TEST DATASETS:
+
+OPENSOURCE LICENCES/Legal
