@@ -20,12 +20,19 @@ What is BoostingPL?
   implementations of MapReduce. You can deploy it on Amazon EC2 or your own 
   cluster.
 
+  The cgl-mapreduce version for BoostingPL is also vailable from the TKDE paper 
+  authors, you can download "CGL-MapReduce-BoostingPL.zip" in "extra/" directory.
+  This version depends on these libraries: Weak, twister-0.8, NaradaBrokering-4.2.2. 
+  You can download these from source websites.
+
+
 
 License:
 
   BoostingPL is open source software issued under the GNU General Public 
   License (GPLv3). See the LICENSE included in this directory for more 
   information.
+
 
 
 Boosting Classifiers:
@@ -42,14 +49,17 @@ Boosting Classifiers:
       - DecisionStump
 
 
+
 Getting Started:
 
    See http:///
 
 
+
 Documentation:
 
    See http:///
+
 
 
 Experimental Results:
