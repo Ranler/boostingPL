@@ -21,6 +21,12 @@ What is BoostingPL?
   cluster.
 
 
+License:
+
+  BoostingPL is open source software issued under the GNU General Public 
+  License (GPLv3, http://www.gnu.org/licenses/gpl.html).
+
+
 Boosting Classifiers:
 
   At present we have implemented these classifiers:
@@ -42,11 +48,10 @@ Getting Started:
 
 Documentation:
 
+   See http:///
 
-TEST ENVIRONMENT:
 
-Cloudera CDH4 Hadoop 0.20.2
+Experimental Results:
 
-TEST DATASETS:
+   See http:///
 
-OPENSOURCE LICENCES/Legal
