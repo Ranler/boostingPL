@@ -89,12 +89,7 @@ public class AdaBoost {
 		for (int t = 0; t < numInterations; ++t){
 				H += classifiers[t].getCorWeight() * classifiers[t].classifyInstance(inst);
 		}
-		
-		if (H >= 0.0) {
-			return +1;
-		}
-		else
-			return -1;
+		return H >= 0.0 ? +1 : -1;
 	}
 
 	public WeakClassifier[] getWeakClassifiers(){

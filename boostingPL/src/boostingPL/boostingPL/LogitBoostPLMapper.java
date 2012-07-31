@@ -24,14 +24,14 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import boostingPL.boosting.AdaBoost;
+import boostingPL.boosting.LogitBoost;
 import boostingPL.core.Instance;
 import boostingPL.core.Instances;
 import boostingPL.mr.io.WeakClassifierArrayWritable;
 import boostingPL.utils.Sort;
 
-
-public class AdaBoostPLMapper extends Mapper<LongWritable, Text, Text, WeakClassifierArrayWritable>{
+public class LogitBoostPLMapper extends Mapper<LongWritable, Text, Text, WeakClassifierArrayWritable>{
+	
 	private Instances insts;
 	
 	protected void setup(Context context) throws IOException ,InterruptedException {
@@ -44,17 +44,13 @@ public class AdaBoostPLMapper extends Mapper<LongWritable, Text, Text, WeakClass
 	
 	protected void cleanup(Context context) throws IOException ,InterruptedException {
 		int T = Integer.parseInt(context.getConfiguration().get("AdaBoost.numInterations"));
-		AdaBoost adaBoost = new AdaBoost(insts, T);
-		adaBoost.run();
+		LogitBoost logitboost = new LogitBoost(insts, T);
+		logitboost.run();
 		
-		double[] orders = new double[T];
-		for (int i = 0; i < orders.length; i++) {
-			orders[i] = adaBoost.getWeakClassifiers()[i].getCorWeight();
-		}
-		Sort.sort(adaBoost.getWeakClassifiers(), orders);
+		Sort.sort(logitboost.getWeakClassifiers(), logitboost.getErrorRates());
 		
-		context.write(null, new WeakClassifierArrayWritable(adaBoost.getWeakClassifiers()));
+		context.write(null, new WeakClassifierArrayWritable(logitboost.getWeakClassifiers()));
+		
 	}
-	
 
 }
