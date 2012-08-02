@@ -18,9 +18,14 @@
 
 package boostingPL.weakclassifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class WeakClassifierHelper {
 	/** default DecisionStump */
 	private static Class<? extends WeakClassifier> nowClassifierClass = DecisionStump.class;
+	
+	private static final Logger log = LoggerFactory.getLogger(WeakClassifierHelper.class);
 	
 	public static void setClassifierClass(String name) {
 		if (name.equals("DecisionStump")) {
@@ -36,11 +41,9 @@ public class WeakClassifierHelper {
 		try {
 			return nowClassifierClass.newInstance();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("unable to new a weakclassifier instance", e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("unable to new a weakclassifier instance", e);
 		}
 		return null;
 	}

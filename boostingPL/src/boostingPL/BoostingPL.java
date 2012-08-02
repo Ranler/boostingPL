@@ -18,28 +18,11 @@
 
 package boostingPL;
 
-import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import boostingPL.boostingPL.AdaBoostPLMapper;
-import boostingPL.boostingPL.AdaBoostPLReducer;
-import boostingPL.boostingPL.AdaBoostPLTestMapper;
-import boostingPL.mr.io.WeakClassifierArrayWritable;
-import boostingPL.weakclassifier.WeakClassifierHelper;
+import boostingPL.boostingPL.AdaBoostPL.AdaBoostPLDriver;
+import boostingPL.boostingPL.LogitBoostPL.LogitBoostPLDriver;
 
 /**
  * This Project is based on this paper:
@@ -53,70 +36,20 @@ import boostingPL.weakclassifier.WeakClassifierHelper;
  * 
  * @author Ranler Cao  findfunaax@gmail.com
  */
-public class BoostingPL extends Configured implements Tool {
-	@Override
-	public int run(String[] args) throws Exception {
-        boolean exitStatus = false;
-        if(args[0].equals("train")){
-        	exitStatus = runAdaBoostPLTrainJob(args);
-        }
-        else if(args[0].equals("test")){
-        	exitStatus = runAdaBoostPLTestJob(args);
-        }
-        else{
-        	System.out.println("Usage: train|test");
-        }
-        return exitStatus == true ? 0 : 1;
+public class BoostingPL {
+	  
+	private BoostingPL() {
 	}
-	
-	private boolean runAdaBoostPLTrainJob(String[] args) throws ClassNotFoundException, IOException, InterruptedException{
-		Job job = new Job(getConf(),"BoostingPL-AdaBoostPL Train");
-		
-		job.setJarByClass(BoostingPL.class);
-		
-		job.setMapperClass(AdaBoostPLMapper.class);
-		job.setReducerClass(AdaBoostPLReducer.class);
-		//job.setNumReduceTasks(5);
-
-		FileInputFormat.addInputPath(job, new Path(args[1]));
-		Path output = new Path(args[2]);
-		FileSystem fs = output.getFileSystem(getConf());
-		if (fs.exists(output)) {
-			fs.delete(output, true);
-		}
-		SequenceFileOutputFormat.setOutputPath(job, output);
-
-		job.setMapOutputKeyClass(NullWritable.class);
-		job.setMapOutputValueClass(WeakClassifierArrayWritable.class);
-		job.setOutputKeyClass(LongWritable.class);
-		job.setOutputValueClass(ArrayWritable.class);
-		
-		job.getConfiguration().set("AdaBoost.numInterations", args[3]);
-		WeakClassifierHelper.setClassifierClass("DecisionStump"); //TODO 从参数获取
-		
-		return job.waitForCompletion(true);	
-	}
-	
-	private boolean runAdaBoostPLTestJob(String[] args) throws ClassNotFoundException, IOException, InterruptedException{
-		Job job = new Job(getConf(),"BoostingPL-AdaBoostPL Test");
-		
-		job.setJarByClass(BoostingPL.class);
-		
-		job.setMapperClass(AdaBoostPLTestMapper.class);
-		job.setOutputFormatClass(NullOutputFormat.class);
-
-		FileInputFormat.addInputPath(job, new Path(args[1]));
-		job.setOutputKeyClass(LongWritable.class);
-		job.setOutputValueClass(Text.class);
-
-		job.getConfiguration().set("AdaBoost.ClassifiersFile", args[2]);
-		WeakClassifierHelper.setClassifierClass("DecisionStump"); //TODO 从参数获取
-		
-		return job.waitForCompletion(true);		
-	}	
 	
 	public static void main(String[] args) throws Exception {
-		int exitCode = ToolRunner.run(new Configuration(), new BoostingPL(), args);
-		System.exit(exitCode);
+		if (args.length > 0 && args[0].equals("adaboost")) {
+			System.exit(ToolRunner.run(new Configuration(), new AdaBoostPLDriver(), args));
+		}
+		else if (args.length > 0 && args.equals("logitboost")) {
+			System.exit(ToolRunner.run(new Configuration(), new LogitBoostPLDriver(), args));			
+		}
+		else {
+			System.out.println("Usage: adaboost|logitboost");
+		}
 	}
 }

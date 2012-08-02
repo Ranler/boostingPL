@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
  */
 
-package boostingPL.boostingPL;
+package boostingPL.boostingPL.LogitBoostPL;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,62 +24,46 @@ import java.util.ArrayList;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.LineReader;
-
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 import boostingPL.core.Instance;
 import boostingPL.weakclassifier.WeakClassifier;
 import boostingPL.weakclassifier.WeakClassifierHelper;
 
+public class LogitBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
+	private ArrayList<WeakClassifier> classifiers;
 
-public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
-	private ArrayList<ArrayList<WeakClassifier>> classifiers;
-	private double[] corWeights;
-	
-	//private static final Logger LOG = LoggerFactory.getLogger(AdaBoostingPLTestMapper.class);		
-	
-	protected void setup(Context context) throws IOException, InterruptedException{
+	protected void setup(Context context) throws java.io.IOException ,InterruptedException {
 		String src = context.getConfiguration().get("AdaBoost.ClassifiersFile"); //TODO
-		
-		classifiers = new ArrayList<ArrayList<WeakClassifier>>();
+	
+		classifiers = new ArrayList<WeakClassifier>();
 		
 		FileSystem hdfs = FileSystem.get(context.getConfiguration());
 		FSDataInputStream dis = hdfs.open(new Path(src));
 		LineReader in = new LineReader(dis);
 		Text line = new Text();
 		while(in.readLine(line) > 0){
-			ArrayList<WeakClassifier> ws = new ArrayList<WeakClassifier>();
-			classifiers.add(ws);
-			
-			String[] items = line.toString().split(" ");
-			for (int i = 0; i < items.length;i++) {
-				WeakClassifier w = WeakClassifierHelper.newInstance();
+			String[] items = line.toString().split("|");
+			for (int i = 0; i < items.length;) {
+				WeakClassifier w = WeakClassifierHelper.newInstance();		
 				w.fromString(items[i]);
-				ws.add(w);
+				classifiers.add(w);
 			}
 		}
 		dis.close();
-		in.close();
-		
-		corWeights = new double[classifiers.get(0).size()];
-		for (int i = 0; i < classifiers.size(); i++) {
-			for (int j = 0; j < classifiers.get(i).size(); j++) {
-				corWeights[j] += classifiers.get(i).get(j).getCorWeight();
-			}
-		}
+		in.close();		
 	}
-	
+
 	protected void map(LongWritable key, Text value, Context context) throws IOException ,InterruptedException {
 		Instance inst = new Instance(value.toString());
 		double H = 0;
-		for (int i = 0; i < corWeights.length; i++) {
-			H += corWeights[i] * merge(inst, i);
+		for (int i = 0; i < classifiers.size(); i++) {
+			H += classifiers.get(i).classifyInstance(inst);
 		}
+		H = H / classifiers.size();
 		
 		int hypoth = H >= 0.0 ? +1 : -1;
 		if(hypoth == inst.getClassAttr()){
@@ -89,16 +73,5 @@ public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritabl
 			context.getCounter("Error Rate", "Error number").increment(1);
 		}
 	}
-	
-	int merge(Instance inst, int round){
-		int sum = 0;
-		for (int i = 0; i < classifiers.size(); i++) {
-			sum += classifiers.get(i).get(round).classifyInstance(inst);
-		}
-		
-		if(sum == 0){
-			return 1;
-		}
-		return sum > 0 ? +1 : -1;
-	}
 }
+

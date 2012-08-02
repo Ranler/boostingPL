@@ -16,23 +16,22 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
  */
 
-package boostingPL.boostingPL;
+package boostingPL.boostingPL.AdaBoostPL;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import boostingPL.mr.io.WeakClassifierArrayWritable;
 
-public class LogitBoostPLReducer extends Reducer<Text, WeakClassifierArrayWritable, 
-	LongWritable, WeakClassifierArrayWritable>{
 
-	protected void reduce(Text key, Iterable<WeakClassifierArrayWritable> value, Context context) throws IOException ,InterruptedException {
-		for(WeakClassifierArrayWritable item: value){
-			context.write(null, item);
-		}
+public class AdaBoostPLReducer extends Reducer<NullWritable, WeakClassifierArrayWritable, 
+	NullWritable, WeakClassifierArrayWritable>{
+	
+	protected void reduce(NullWritable key, Iterable<WeakClassifierArrayWritable> value, Context context) throws IOException ,InterruptedException {
+			for(WeakClassifierArrayWritable item: value){
+				context.write(null, item);
+			}
 	}
-
 }

@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
  */
 
-package boostingPL.boostingPL;
+package boostingPL.boostingPL.LogitBoostPL;
 
 import java.io.IOException;
 
