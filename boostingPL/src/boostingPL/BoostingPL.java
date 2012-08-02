@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
  */
 
-package boostingPL.boostingPL;
+package boostingPL;
 
 import java.io.IOException;
 
@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -34,6 +35,9 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import boostingPL.boostingPL.AdaBoostPLMapper;
+import boostingPL.boostingPL.AdaBoostPLReducer;
+import boostingPL.boostingPL.AdaBoostPLTestMapper;
 import boostingPL.mr.io.WeakClassifierArrayWritable;
 import boostingPL.weakclassifier.WeakClassifierHelper;
 
@@ -66,7 +70,7 @@ public class BoostingPL extends Configured implements Tool {
 	}
 	
 	private boolean runAdaBoostPLTrainJob(String[] args) throws ClassNotFoundException, IOException, InterruptedException{
-		Job job = new Job(getConf(),"BoostPL-AdaBoostPL Train");
+		Job job = new Job(getConf(),"BoostingPL-AdaBoostPL Train");
 		
 		job.setJarByClass(BoostingPL.class);
 		
@@ -82,7 +86,7 @@ public class BoostingPL extends Configured implements Tool {
 		}
 		SequenceFileOutputFormat.setOutputPath(job, output);
 
-		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputKeyClass(NullWritable.class);
 		job.setMapOutputValueClass(WeakClassifierArrayWritable.class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(ArrayWritable.class);
@@ -90,11 +94,11 @@ public class BoostingPL extends Configured implements Tool {
 		job.getConfiguration().set("AdaBoost.numInterations", args[3]);
 		WeakClassifierHelper.setClassifierClass("DecisionStump"); //TODO 从参数获取
 		
-		return job.waitForCompletion(true);		
+		return job.waitForCompletion(true);	
 	}
 	
 	private boolean runAdaBoostPLTestJob(String[] args) throws ClassNotFoundException, IOException, InterruptedException{
-		Job job = new Job(getConf(),"BoostPL-AdaBoostPL Test");
+		Job job = new Job(getConf(),"BoostingPL-AdaBoostPL Test");
 		
 		job.setJarByClass(BoostingPL.class);
 		
@@ -106,6 +110,8 @@ public class BoostingPL extends Configured implements Tool {
 		job.setOutputValueClass(Text.class);
 
 		job.getConfiguration().set("AdaBoost.ClassifiersFile", args[2]);
+		WeakClassifierHelper.setClassifierClass("DecisionStump"); //TODO 从参数获取
+		
 		return job.waitForCompletion(true);		
 	}	
 	

@@ -44,7 +44,7 @@ public class WeakClassifierArrayWritable extends ArrayWritable{
 		Writable[] values = this.get();
 		String s = "" + values[0];
 		for (int i = 1; i < values.length; i++) {
-			s += "|" + values[i].toString();
+			s += " " + values[i].toString();
 		}
 		return s;
 	}

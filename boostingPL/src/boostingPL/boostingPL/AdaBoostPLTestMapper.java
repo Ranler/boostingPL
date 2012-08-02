@@ -56,9 +56,9 @@ public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritabl
 			ArrayList<WeakClassifier> ws = new ArrayList<WeakClassifier>();
 			classifiers.add(ws);
 			
-			String[] items = line.toString().split("|");
-			for (int i = 0; i < items.length;) {
-				WeakClassifier w = WeakClassifierHelper.newInstance();		
+			String[] items = line.toString().split(" ");
+			for (int i = 0; i < items.length;i++) {
+				WeakClassifier w = WeakClassifierHelper.newInstance();
 				w.fromString(items[i]);
 				ws.add(w);
 			}

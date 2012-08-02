@@ -35,7 +35,10 @@ public class WeakClassifierHelper {
 	public static WeakClassifier newInstance() {
 		try {
 			return nowClassifierClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

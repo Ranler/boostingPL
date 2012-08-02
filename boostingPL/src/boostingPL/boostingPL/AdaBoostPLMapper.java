@@ -21,6 +21,7 @@ package boostingPL.boostingPL;
 import java.io.IOException;
 
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -31,7 +32,7 @@ import boostingPL.mr.io.WeakClassifierArrayWritable;
 import boostingPL.utils.Sort;
 
 
-public class AdaBoostPLMapper extends Mapper<LongWritable, Text, Text, WeakClassifierArrayWritable>{
+public class AdaBoostPLMapper extends Mapper<LongWritable, Text, NullWritable, WeakClassifierArrayWritable>{
 	private Instances insts;
 	
 	protected void setup(Context context) throws IOException ,InterruptedException {
@@ -53,7 +54,7 @@ public class AdaBoostPLMapper extends Mapper<LongWritable, Text, Text, WeakClass
 		}
 		Sort.sort(adaBoost.getWeakClassifiers(), orders);
 		
-		context.write(null, new WeakClassifierArrayWritable(adaBoost.getWeakClassifiers()));
+		context.write(NullWritable.get(), new WeakClassifierArrayWritable(adaBoost.getWeakClassifiers()));
 	}
 	
 

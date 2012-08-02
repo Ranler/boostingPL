@@ -22,8 +22,8 @@ What is BoostingPL?
 
   The cgl-mapreduce version for BoostingPL is also vailable from the TKDE paper 
   authors, you can download "CGL-MapReduce-BoostingPL.zip" in "extra/" directory.
-  This version depends on these libraries: Weak, twister-0.8, NaradaBrokering-4.2.2. 
-  You can download these from source websites.
+  This cgl-mapreduce version depends on these libraries: Weak, twister-0.8, 
+  NaradaBrokering-4.2.2. You can download these from source websites.
 
 
 

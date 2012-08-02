@@ -2,6 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/aax/tools/hadoop-0.20-cdh3u3-lib/hadoop-core-0.20.2-cdh3u3.jar" sourcepath="/home/aax/tools/hadoop-0.20-cdh3u3-src"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-ant-2.0.0-mr1-cdh4.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-common-2.0.0-cdh4.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-core-2.0.0-mr1-cdh4.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-examples-2.0.0-mr1-cdh4.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-test-2.0.0-mr1-cdh4.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-tools-2.0.0-mr1-cdh4.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
