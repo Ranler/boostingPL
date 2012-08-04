@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-examples-2.0.0-mr1-cdh4.0.0.jar"/>
 	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-test-2.0.0-mr1-cdh4.0.0.jar"/>
 	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop-0.20-lib-mod/hadoop-tools-2.0.0-mr1-cdh4.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-cdh4/hadoop/lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

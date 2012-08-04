@@ -10,6 +10,7 @@ import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -41,6 +42,7 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 	
 	private boolean runTrainJob(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 		Job job = new Job(getConf(),"BoostingPL: AdaBoostPL Train");
+		Configuration conf = job.getConfiguration();
 		job.setJarByClass(AdaBoostPLDriver.class);
 		job.setMapperClass(AdaBoostPLMapper.class);
 		job.setReducerClass(AdaBoostPLReducer.class);
@@ -50,7 +52,9 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		job.setOutputKeyClass(NullWritable.class);
 		job.setOutputValueClass(ArrayWritable.class);
 		
-		FileInputFormat.addInputPath(job, new Path(args[2]));
+		job.setInputFormatClass(NLineInputFormat.class);
+		conf.set("mapreduce.input.lineinputformat.linespermap", args[5]);
+		NLineInputFormat.addInputPath(job, new Path(args[2]));
 		Path output = new Path(args[3]);
 		FileSystem fs = output.getFileSystem(getConf());
 		if (fs.exists(output)) {

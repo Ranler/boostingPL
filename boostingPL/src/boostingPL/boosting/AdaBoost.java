@@ -109,6 +109,7 @@ public class AdaBoost {
 	
 
 	public static void main(String[] args) throws IOException{
+		long start = System.currentTimeMillis();
 		Instances insts = new Instances();
 		
 		FileReader reader = new FileReader(args[0]);
@@ -136,6 +137,8 @@ public class AdaBoost {
 		}
 		System.out.println(rightCount + "/" + insts.numInstances());
 		System.out.println(rightCount * 1.0 / insts.numInstances());
+		
+		System.out.println((System.currentTimeMillis() - start)/1000.0);
 	}
 
 }

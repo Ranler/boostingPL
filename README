@@ -22,7 +22,7 @@ What is BoostingPL?
 
   The cgl-mapreduce version for BoostingPL is also vailable from the TKDE paper 
   authors, you can download "CGL-MapReduce-BoostingPL.zip" in "extra/" directory.
-  This cgl-mapreduce version depends on these libraries: Weak, twister-0.8, 
+  This cgl-mapreduce version depends on these libraries: Weka, twister-0.8, 
   NaradaBrokering-4.2.2. You can download these from source websites.
 
 
@@ -48,6 +48,10 @@ Boosting Classifiers:
     * Weak Classifiers:
       - DecisionStump
 
+
+A Simple Testing for AdaBoostPL:
+
+https://github.com/Ranler/boostingPL/wiki/A-Simple-Testing-for-AdaBoostPL
 
 
 Getting Started:
