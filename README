@@ -15,6 +15,9 @@ What is BoostingPL?
   If you want to know the theory and demonstration of algorithms in BoostingPL
   , this paper provides references for further reading.
 
+  BoostingPL use the classifiers in WEKA(http://www.cs.waikato.ac.nz/ml/weka/)
+  as weak classifiers, so it depends on weka.
+
   The MapReduce platform we used is Apache Hadoop(http://hadoop.apache.org/)
   , which is an opensource project and is more popular than other 
   implementations of MapReduce. You can deploy it on Amazon EC2 or your own 
@@ -70,3 +73,6 @@ Experimental Results:
 
    See http:///
 
+
+BoostingMR(https://github.com/Ranler/boostingMR): another project which 
+provide an simple web-based interface for hadoop MR jobs.
