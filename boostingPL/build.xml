@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project boostingPL">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/home/aax/xpShareSpace/boostingPL/boostingPL0.1.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="boostingPL.MR.AdaBoostPLDriver"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="/home/aax/git-repos/boostingPL/boostingPL/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/aax/git-repos/boostingPL/boostingPL/lib/weka.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/aax/tools/hadoop-0.20-cdh3u3-lib/lib/log4j-1.2.15.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/aax/tools/hadoop-0.20-cdh3u3-lib/lib/slf4j-api-1.4.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/aax/tools/hadoop-0.20-cdh3u3-lib/lib/slf4j-log4j12-1.4.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/aax/tools/hadoop-0.20-cdh3u3-lib/hadoop-core-0.20.2-cdh3u3.jar"/>
+        </jar>
+    </target>
+</project>

@@ -18,13 +18,18 @@
 
 package boostingPL.boosting;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.LineReader;
 
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+
 
 public class InstancesHelper {
 	
@@ -44,6 +49,61 @@ public class InstancesHelper {
 		return inst;
 	}
 	
+	/**
+	 * create instances header from metadata,
+	 * the metadata like this:
+	 * 
+	 *   <br/>
+	 *   <p>attributesNum:100</p>
+	 *   <p>classes:+1,-1</p>
+	 *   <br/>
+	 * 
+	 * @param in
+	 * @return
+	 * @throws IOException
+	 */
+	public static Instances createInstancesFromMetadata(LineReader in) throws IOException {
+		int attributesNum = 0;
+		ArrayList<Attribute> attInfo = null;
+		List<String> classItems = null;
+		
+		Text line = new Text();
+		while(in.readLine(line) > 0){
+			String sline = line.toString();
+			if (sline.startsWith("attributesNum:")) {
+				attributesNum = Integer.parseInt(sline.substring(14));
+				attInfo = new ArrayList<Attribute>(attributesNum+1);
+				for (int i = 0; i < attributesNum; i++) {
+					attInfo.add(new Attribute("attr"+i));
+				}
+				
+				System.out.println("AttributeNum:"+attributesNum);
+			}
+			else if (sline.startsWith("classes:")) {
+				String classes = sline.substring(8);
+				String[] citems = classes.split(",");
+				classItems = new ArrayList<String>(citems.length);
+				for (String s : citems) {
+					classItems.add(s);
+				}
+				
+				System.out.println("classes:"+classes);
+			}
+		}
+		
+		attInfo.add(new Attribute("class", classItems));
+		Instances insts = new Instances("BoostingPL-dataset", attInfo, 0);
+		insts.setClassIndex(insts.numAttributes()-1);
+
+		return insts;		
+	}
+	
+	/**
+	 * create instances header from a instance
+	 * 
+	 * @param instance
+	 * @return instances
+	 */
 	public static Instances createInstances(String text) {
 		String[] items = text.split(" ");
 		
@@ -52,7 +112,6 @@ public class InstancesHelper {
 			attInfo.add(new Attribute("attr"+i));
 		}
 		
-		// TODO read this from meta data
 		List<String> classItems = new ArrayList<String>(2);
 		classItems.add("1");
 		classItems.add("-1");		

@@ -28,6 +28,8 @@ What is BoostingPL?
   This cgl-mapreduce version depends on these libraries: Weka, twister-0.8, 
   NaradaBrokering-4.2.2. You can download these from source websites.
 
+  BoostingMR( https://github.com/Ranler/boostingMR ): another project which 
+  provide an simple web-based interface for hadoop MR jobs.
 
 
 License:
@@ -74,5 +76,3 @@ Experimental Results:
    See http:///
 
 
-BoostingMR(https://github.com/Ranler/boostingMR): another project which 
-provide an simple web-based interface for hadoop MR jobs.

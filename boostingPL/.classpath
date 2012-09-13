@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/weka.jar"/>
+	<classpathentry kind="lib" path="/home/aax/tools/hadoop-0.20-cdh3u3-lib/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="/home/aax/tools/hadoop-0.20-cdh3u3-lib/lib/slf4j-api-1.4.3.jar"/>
 	<classpathentry kind="lib" path="/home/aax/tools/hadoop-0.20-cdh3u3-lib/lib/slf4j-log4j12-1.4.3.jar"/>
 	<classpathentry kind="lib" path="/home/aax/tools/hadoop-0.20-cdh3u3-lib/hadoop-core-0.20.2-cdh3u3.jar"/>

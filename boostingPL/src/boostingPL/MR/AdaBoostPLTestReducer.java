@@ -21,6 +21,7 @@ package boostingPL.MR;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -29,6 +30,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.util.LineReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,7 @@ import weka.core.Instances;
 
 public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWritable, NullWritable>{
 
-	private static final Logger LOG = LoggerFactory.getLogger(ClassifierWritable.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AdaBoostPLTestReducer.class);
 	
 	private AdaBoostPL adaBoostPL;
 	private Evaluation eval;
@@ -53,31 +55,37 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 	
 	
 	protected void setup(Context context) throws IOException ,InterruptedException {
-		Path path = new Path(context.getConfiguration().get("AdaBoost.ClassifiersFile")); //TODO
+		// classifier file
+		Path path = new Path(context.getConfiguration().get("AdaBoostPL.ClassifiersFile"));
 		loadClassifiersFile(context, path);		
+		
+		// testing dataset metadata
+		String pathSrc = context.getConfiguration().get("AdaBoostPL.metadata");
+		FileSystem hdfs = FileSystem.get(context.getConfiguration());
+		FSDataInputStream dis = new FSDataInputStream(hdfs.open(new Path(pathSrc)));
+		LineReader in = new LineReader(dis);
+		insts = InstancesHelper.createInstancesFromMetadata(in);
+		in.close();
+		dis.close();
+		
+		try {
+			eval = new Evaluation(insts);
+		} catch (Exception e) {
+			LOG.error("[AdaBoostPL-Test]: Evaluation init error!");
+			e.printStackTrace();			
+		}
+
 	}
 	
 	protected void reduce(LongWritable key, Iterable<Text> value,
 			Context context) throws IOException, InterruptedException {
 		for (Text t : value) {
-			if (insts == null) {
-				insts = InstancesHelper.createInstances(t.toString());
-				try {
-					eval = new Evaluation(insts);
-				} catch (Exception e) {
-					LOG.error("[AdaBoostPL-Test]: Evaluation init error!");
-					e.printStackTrace();
-				}
-			}
-
-			if (eval != null) {
-				Instance inst = InstancesHelper.createInstance(t.toString(), insts);
-				try {
-					eval.evaluateModelOnceAndRecordPrediction(adaBoostPL, inst);
-				} catch (Exception e) {
-					LOG.warn("[AdaBoostPL-Test]: Evalute instance error!, key = " + key.get());
-					e.printStackTrace();
-				}
+			Instance inst = InstancesHelper.createInstance(t.toString(), insts);
+			try {
+				eval.evaluateModelOnceAndRecordPrediction(adaBoostPL, inst);
+			} catch (Exception e) {
+				LOG.warn("[AdaBoostPL-Test]: Evalute instance error!, key = " + key.get());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -89,7 +97,7 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 		} catch (Exception e) {
 			LOG.error("[AdaBoostPL-test]: Evaluation details error!");
 			e.printStackTrace();
-		}		
+		}
 	}
 	
 	private void loadClassifiersFile(Context context, Path path) throws IOException {

@@ -75,7 +75,9 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		SequenceFileOutputFormat.setOutputPath(job, output);		
 	
 		// TODO set the paras
-		job.getConfiguration().set("AdaBoost.numInterations", args[3]);
+		job.getConfiguration().set("AdaBoostPL.numInterations", args[3]);
+		
+		job.getConfiguration().set("AdaBoostPL.metadata", args[1]+".metadata");
 		
 		return job.waitForCompletion(true);
 	}
@@ -93,9 +95,9 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		job.setOutputKeyClass(NullWritable.class);
 		job.setOutputValueClass(NullWritable.class);		
 
-		job.getConfiguration().set("AdaBoost.ClassifiersFile", args[2]);
+		job.getConfiguration().set("AdaBoostPL.ClassifiersFile", args[2]);
 		
-		return job.waitForCompletion(true);		
+		return job.waitForCompletion(true);
 	}	
 	
 	public static void main(String[] args) throws Exception {
