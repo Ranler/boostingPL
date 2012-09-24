@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.LineReader;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import weka.core.Instances;
 
 import boostingPL.MR.io.ClassifierWritable;
 import boostingPL.boosting.AdaBoost;
+import boostingPL.boosting.AdaBoostSAMME;
 import boostingPL.boosting.InstancesHelper;
 import boostingPL.utils.Sort;
 
@@ -66,12 +68,16 @@ public class AdaBoostPLMapper
 		
 		int T = Integer.parseInt(context.getConfiguration().get("AdaBoostPL.numInterations"));
 	
-		AdaBoost adaBoost = new AdaBoost(insts, T);
+		AdaBoostSAMME adaBoost = new AdaBoostSAMME(insts, T);
+		Counter iterationCounter = context.getCounter("BoostingPL", "recent iterations");
 		try {
-			adaBoost.run();
-		} catch (Exception e2) {
-			LOG.error("AdaBoostPL Training Error");
-			e2.printStackTrace();
+			for (int t = 0; t < T; t++) {
+				adaBoost.run(t);
+				context.progress();
+				iterationCounter.increment(1);
+			}
+		} catch (Exception e) {
+			LOG.error(e.toString());
 			return;
 		}
 
@@ -79,8 +85,10 @@ public class AdaBoostPLMapper
 		Classifier[] classifiers = adaBoost.getClassifiers();
 		int taskid = context.getTaskAttemptID().getTaskID().getId();
 
-		Sort.sort(classifiers, corWeights);		
+		Sort.sort(classifiers, corWeights);
+		
 		for (int i = 0; i < classifiers.length; i++) {
+			System.out.println("nodeid="+taskid+" cweight=" +corWeights[i]);
 			context.write(new IntWritable(taskid),
 					new ClassifierWritable(classifiers[i], corWeights[i]));
 		}

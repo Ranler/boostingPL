@@ -22,11 +22,19 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
 
 public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
 	
+	private Counter instanceCounter;
+	
+	protected void setup(Context context) throws IOException ,InterruptedException {
+		instanceCounter = context.getCounter("BoostingPL", "Number of instances");
+	}
+	
 	protected void map(LongWritable key, Text value, Context context) throws IOException ,InterruptedException {
+		instanceCounter.increment(1);
 		context.write(key, value);
 	}
 	

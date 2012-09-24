@@ -20,13 +20,21 @@ package boostingPL.boosting;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.DecisionStump;
+import weka.classifiers.trees.J48;
+import weka.core.Utils;
 
 public class ClassifiersHelper {
 
-	public static Classifier newInstance(String classifierName) {
+	public static Classifier newInstance(String classifierName) throws Exception {
 		if (classifierName.equals("DecisionStump")) {
 			return new DecisionStump();
 		}
+		if (classifierName.equals("C4.5")) {
+			String arg = "weka.classifiers.trees.J48 -C 0.4 -M 2";
+			J48 j48 = new J48();
+			j48.setOptions(Utils.splitOptions(arg));
+			return j48;
+		}
 		return null;
-	}	
+	}
 }

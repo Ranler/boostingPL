@@ -18,6 +18,7 @@
 
 package boostingPL.boosting;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +30,14 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 
 
 public class InstancesHelper {
 	
 	public static Instance createInstance(String text, Instances insts) {
 		// numeric attributes
-		String[] items = text.split(" ");		
+		String[] items = text.split(",");		
 		double[] ds = new double[items.length];
 		for (int i = 0; i < ds.length-1; i++) {
 			ds[i] = Double.parseDouble(items[i]);
@@ -120,5 +122,18 @@ public class InstancesHelper {
 		insts.setClassIndex(insts.numAttributes()-1);
 
 		return insts;
-	}		
+	}
+	
+	private void saveInstances(Instances dataset) {
+		 ArffSaver saver = new ArffSaver();
+		 saver.setInstances(dataset);
+		 try {
+			saver.setFile(new File("/tmp/test.arff"));
+			saver.writeBatch();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

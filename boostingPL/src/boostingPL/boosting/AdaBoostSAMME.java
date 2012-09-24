@@ -1,38 +1,12 @@
-/*
- *   BoostingPL - Scalable and Parallel Boosting with MapReduce 
- *   Copyright (C) 2012  Ranler Cao  findfunaax@gmail.com
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
- */
-
 package boostingPL.boosting;
 
-import java.lang.Math;
-
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
-import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 
-/**
- * Adaptive Boosting
- * 
- * @author Ranler Cao  findfunaax@gmail.com
- *
- */
-public class AdaBoost {
+public class AdaBoostSAMME {
 
 	/** training instances */
 	private Instances insts;
@@ -47,20 +21,20 @@ public class AdaBoost {
 	private double[] cweights;
 	
 	
-	public AdaBoost(Instances insts, int numInterations) {
+	public AdaBoostSAMME(Instances insts, int numInterations) {
 		this.insts = insts;
 		this.numIterations = numInterations;
 		this.classifiers = new Classifier[numInterations];
 		this.cweights = new double[numInterations];
-
+		
 		// initialize instance's weight
-		int numInstances = insts.numInstances();
+		final int numInstances = insts.numInstances();		
 		for (int i = 0; i < numInstances; i++) {
 			double tweight = 1.0/numInstances;
 			insts.instance(i).setWeight(tweight);
 		}
 		//System.out.println("instances weights total: " + insts.sumOfWeights());
-				
+
 	}
 	
 	public void run(int t) throws Exception {
@@ -71,26 +45,35 @@ public class AdaBoost {
 		classifiers[t] = ClassifiersHelper.newInstance("DecisionStump");
 		//classifiers[t] = ClassifiersHelper.newInstance("C4.5");
 		classifiers[t].buildClassifier(insts);
-			
+
 		double e = weightError(t);
-		if(e >= 0.5) {
-			System.out.println("Error: error rate = " + e + ", >= 0.5");
-			throw new Exception("error rate > 0.5");
+		final int numClasses = insts.classAttribute().numValues();
+		double maxe = 1 - 1.0 / numClasses;
+		if (e >= maxe) {
+			System.out.println("Error: error rate = " + e + ", >= " + maxe);
+			// saveInstance(insts);
+			throw new Exception("error rate > " + maxe);
 		}
-			
-		cweights[t] = 0.5 * Math.log((1-e)/e) / Math.log(Math.E);
-		System.out.println("Round = " + t
-				+ "\t ErrorRate = " + e 
-				+ "\t\t Weights = " + cweights[t]);
-			
+
+		cweights[t] = Math.log((1 - e) / e) + Math.log(numClasses - 1);
+		System.out.println("Round = " + t + "\tErrorRate = " + e
+				+ "\tCWeight = " + cweights[t] + "\texpCWeight = "
+				+ Math.exp(cweights[t]));
+
+		double expCWeight = Math.exp(cweights[t]);
 		for (int i = 0; i < insts.numInstances(); i++) {
 			Instance inst = insts.instance(i);
 			if (classifiers[t].classifyInstance(inst) != inst.classValue()) {
-				inst.setWeight(inst.weight() / (2 * e));
-			} else {
-				inst.setWeight(inst.weight() / (2 * (1-e)));
+				inst.setWeight(inst.weight() * expCWeight);
 			}
 		}
+
+		double weightSum = insts.sumOfWeights();
+		for (int i = 0; i < insts.numInstances(); i++) {
+			Instance inst = insts.instance(i);
+			inst.setWeight(inst.weight() / weightSum);
+		}
+
 	}
 
 	public Classifier[] getClassifiers() {
@@ -134,29 +117,29 @@ public class AdaBoost {
 			}
 		}
 		return maxIdx;
-	}		
+	}	
 	
 	public static void main(String[] args) throws Exception {
-		java.io.File inputFile = new java.io.File("/home/aax/xpShareSpace/boostingPL/RDG2-100-2.arff");
+		java.io.File inputFile = new java.io.File("/home/aax/xpShareSpace/boostingPL/RDG1-100-5.arff");
 		ArffLoader atf = new ArffLoader();
 		atf.setFile(inputFile);
 		Instances training = atf.getDataSet();
 		training.setClassIndex(training.numAttributes()-1);
 		
-		AdaBoost adaBoost = new AdaBoost(training, 100);
+		AdaBoostSAMME samme = new AdaBoostSAMME(training, 100);
 		for (int t = 0; t < 100; t++) {
-			adaBoost.run(t);			
+			samme.run(t);			
 		}
 
 		
 		int right = 0;
 		for (int i = 0; i < training.numInstances(); i++) {
 			Instance inst = training.instance(i);
-			if (adaBoost.classifyInstance(inst) == inst.classValue()) {
+			if (samme.classifyInstance(inst) == inst.classValue()) {
 				right++;
 			}
 		}
 		System.out.println(right);
-		System.out.println((double)right/training.numInstances());		
+		System.out.println((double)right/training.numInstances());
 	}
 }

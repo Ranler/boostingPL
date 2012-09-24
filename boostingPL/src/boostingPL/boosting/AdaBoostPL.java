@@ -38,48 +38,79 @@ public class AdaBoostPL implements Classifier {
 
 	@Override
 	public double classifyInstance(Instance inst) throws Exception {
-		double[] H = new double[2];
+		int classNum = inst.dataset().classAttribute().numValues();
+		double[] H = new double[classNum];
 		for (int j = 0; j < corWeights.length; j++) {
-			int cv = merge(inst, j);
-			if (cv >= 0) {
-				H[merge(inst, j)] += corWeights[j];
+			int classValue = merge(inst, j, classNum);
+			if (classValue >= 0) {
+				H[classValue] += corWeights[j];
 			}
 		}
-		int pred = H[0] > H[1] ? 0 : 1;
-		return (double)pred;
+		return (double)maxIdx(H);
 	}
 
-	private int merge(Instance inst, int round) throws Exception{
-		int[] sum = new int[2];
+	@Override
+	public double[] distributionForInstance(Instance inst) throws Exception {
+		int classNum = inst.dataset().classAttribute().numValues();
+		double[] H = new double[classNum];
+		double sum = 0;
+		for (int j = 0; j < corWeights.length; j++) {
+			int classValue = merge(inst, j, classNum);
+			if (classValue >= 0) {
+				H[classValue] += corWeights[j];
+				sum += corWeights[j];
+			}
+		}
+
+		for (int i = 0; i < H.length; i++) {
+			H[i] /= sum;
+		}
+		return H;
+	}
+	
+	private int merge(Instance inst, int round, int classNum) throws Exception {
+		int[] sum = new int[classNum];
 		for (int i = 0; i < classifiers.length; i++) {
 			sum[(int)classifiers[i][round].classifyInstance(inst)] += 1;
 		}
-		
-		if(sum[0] == sum[1]) return -1;
-		return sum[0] > sum[1] ? 0 : 1;
+		return maxIdx(sum);
 	}
+	
+	private int maxIdx(int[] a) {
+		int max = -1;
+		int maxIdx = 0;
+		for (int i = 0; i < a.length; i++) {
+			if (a[i] > max) {
+				maxIdx = i;
+				max = a[i];
+			}
+			else if (a[i] == max) {
+				// at least two classes have same vote  
+				return -1;
+			}
+		}
+		return maxIdx;
+	}
+	
+	private int maxIdx(double[] a) {
+		double max = -1;
+		int maxIdx = 0;
+		for (int i = 0; i < a.length; i++) {
+			if (a[i] > max) {
+				maxIdx = i;
+				max = a[i];
+			}
+			else if (a[i] == max) {
+				// at least two classes have same vote  
+				return -1;
+			}
+		}
+		return maxIdx;
+	}	
 	
 	@Override
 	public Capabilities getCapabilities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public double[] distributionForInstance(Instance inst) throws Exception {
-		double[] H = new double[2];
-		for (int j = 0; j < corWeights.length; j++) {
-			int cv = merge(inst, j);
-			if (cv >= 0) {
-				H[merge(inst, j)] += corWeights[j];
-			}
-		}
-		
-		double sum = H[0] + H[1];
-		H[0] = H[0] / sum;
-		H[1] = H[1] / sum;
-		//int pred = H[0] > H[1] ? 0 : 1;
-		return H;
-	}
-
 }

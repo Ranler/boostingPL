@@ -56,7 +56,8 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 	
 	protected void setup(Context context) throws IOException ,InterruptedException {
 		// classifier file
-		Path path = new Path(context.getConfiguration().get("AdaBoostPL.ClassifiersFile"));
+		Path path = new Path(context.getConfiguration().get("AdaBoostPL.ClassifiersFile")
+				 + "/part-r-00000");
 		loadClassifiersFile(context, path);		
 		
 		// testing dataset metadata
@@ -74,7 +75,6 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 			LOG.error("[AdaBoostPL-Test]: Evaluation init error!");
 			e.printStackTrace();			
 		}
-
 	}
 	
 	protected void reduce(LongWritable key, Iterable<Text> value,
@@ -106,7 +106,6 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 		SequenceFile.Reader in = new SequenceFile.Reader(hdfs, path, context.getConfiguration());
 		
 		IntWritable key = new IntWritable();
-		ClassifierWritable value = new ClassifierWritable();
 		ArrayList<ArrayList<ClassifierWritable>> classifiersW 
 			= new ArrayList<ArrayList<ClassifierWritable>>();		
 		ArrayList<ClassifierWritable> ws = null;
@@ -116,13 +115,15 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 				ws = new ArrayList<ClassifierWritable>();
 				classifiersW.add(ws);
 			}
+			ClassifierWritable value = new ClassifierWritable();			
 			in.getCurrentValue(value);
 			ws.add(value);
 		}
 		in.close();
 		
 		System.out.println("Classifier number:" + classifiersW.size());
-		System.out.println("Interation number:" + classifiersW.get(0).size());
+		System.out.println("Iteration number:" + classifiersW.get(0).size());
+		System.out.println();
 		
 		double[] corWeights = new double[classifiersW.get(0).size()];
 		Classifier[][] classifiers = new Classifier[classifiersW.size()][classifiersW.get(0).size()];
