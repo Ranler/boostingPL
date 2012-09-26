@@ -81,8 +81,9 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		SequenceFileOutputFormat.setOutputPath(job, output);
 	
 		// TODO set the paras
+		NLineInputFormat.setNumLinesPerSplit(job, Integer.parseInt(args[4]));
 		job.getConfiguration().set("AdaBoostPL.numInterations", args[3]);
-		job.getConfiguration().set("mapreduce.input.lineinputformat.linespermap", args[4]);		
+		//job.getConfiguration().set("mapreduce.input.lineinputformat.linespermap", args[4]);		
 		job.getConfiguration().set("AdaBoostPL.metadata", args[1]+".metadata");
 		
 		return job.waitForCompletion(true);

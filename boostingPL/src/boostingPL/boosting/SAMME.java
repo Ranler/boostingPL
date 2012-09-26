@@ -2,11 +2,12 @@ package boostingPL.boosting;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 
-public class AdaBoostSAMME {
+public class SAMME implements Classifier {
 
 	/** training instances */
 	private Instances insts;
@@ -21,7 +22,7 @@ public class AdaBoostSAMME {
 	private double[] cweights;
 	
 	
-	public AdaBoostSAMME(Instances insts, int numInterations) {
+	public SAMME(Instances insts, int numInterations) {
 		this.insts = insts;
 		this.numIterations = numInterations;
 		this.classifiers = new Classifier[numInterations];
@@ -43,7 +44,6 @@ public class AdaBoostSAMME {
 		}
 		
 		classifiers[t] = ClassifiersHelper.newInstance("DecisionStump");
-		//classifiers[t] = ClassifiersHelper.newInstance("C4.5");
 		classifiers[t].buildClassifier(insts);
 
 		double e = weightError(t);
@@ -51,14 +51,14 @@ public class AdaBoostSAMME {
 		double maxe = 1 - 1.0 / numClasses;
 		if (e >= maxe) {
 			System.out.println("Error: error rate = " + e + ", >= " + maxe);
-			// saveInstance(insts);
 			throw new Exception("error rate > " + maxe);
 		}
 
 		cweights[t] = Math.log((1 - e) / e) + Math.log(numClasses - 1);
-		System.out.println("Round = " + t + "\tErrorRate = " + e
-				+ "\tCWeight = " + cweights[t] + "\texpCWeight = "
-				+ Math.exp(cweights[t]));
+		System.out.println("Round = " + t 
+				+ "\tErrorRate = " + e
+				+ "\tCWeight = " + cweights[t] 
+				);
 
 		double expCWeight = Math.exp(cweights[t]);
 		for (int i = 0; i < insts.numInstances(); i++) {
@@ -91,14 +91,13 @@ public class AdaBoostSAMME {
 		return eval.errorRate();
 	}
 	
+	@Override	
 	public double classifyInstance(Instance inst) throws Exception {
 		int classNum = inst.dataset().classAttribute().numValues();
 		double[] H = new double[classNum];
 		for (int j = 0; j < cweights.length; j++) {
 			int classValue = (int)classifiers[j].classifyInstance(inst);
-			if (classValue >= 0) {
-				H[classValue] += cweights[j];
-			}
+			H[classValue] += cweights[j];
 		}
 		return (double)maxIdx(H);
 	}
@@ -111,35 +110,66 @@ public class AdaBoostSAMME {
 				maxIdx = i;
 				max = a[i];
 			}
-			else if (a[i] == max) {
+			else if (a[i] > 0 && a[i] == max) {
 				// at least two classes have same vote  
 				return -1;
 			}
 		}
 		return maxIdx;
-	}	
+	}
+	
+	@Override
+	public double[] distributionForInstance(Instance inst) throws Exception {
+		int classNum = inst.dataset().classAttribute().numValues();
+		double[] H = new double[classNum];
+		double sum = 0;
+		for (int j = 0; j < numIterations; j++) {
+			int classValue = (int)classifiers[j].classifyInstance(inst);
+			H[classValue] += cweights[j];
+			sum += cweights[j];
+		}
+
+		// normalize
+		for (int i = 0; i < H.length; i++) {
+			H[i] /= sum;
+		}
+		return H;
+	}
+	
+	
 	
 	public static void main(String[] args) throws Exception {
-		java.io.File inputFile = new java.io.File("/home/aax/xpShareSpace/boostingPL/RDG1-100-5.arff");
+		java.io.File inputFile = new java.io.File(args[0]);
 		ArffLoader atf = new ArffLoader();
 		atf.setFile(inputFile);
 		Instances training = atf.getDataSet();
 		training.setClassIndex(training.numAttributes()-1);
+		Instances testing = new Instances(training);
 		
-		AdaBoostSAMME samme = new AdaBoostSAMME(training, 100);
-		for (int t = 0; t < 100; t++) {
+		int iterationNum = Integer.parseInt(args[1]);
+		SAMME samme = new SAMME(training, iterationNum);
+		for (int t = 0; t < iterationNum; t++) {
 			samme.run(t);			
 		}
-
 		
-		int right = 0;
-		for (int i = 0; i < training.numInstances(); i++) {
-			Instance inst = training.instance(i);
-			if (samme.classifyInstance(inst) == inst.classValue()) {
-				right++;
-			}
+		Evaluation eval = new Evaluation(testing);
+		for (Instance inst : testing) {
+			eval.evaluateModelOnceAndRecordPrediction(samme, inst);
 		}
-		System.out.println(right);
-		System.out.println((double)right/training.numInstances());
+		System.out.println(eval.toSummaryString());
+		System.out.println(eval.toClassDetailsString());
+		System.out.println(eval.toMatrixString());			
+	}
+	
+
+	@Override
+	public void buildClassifier(Instances arg0) throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public Capabilities getCapabilities() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

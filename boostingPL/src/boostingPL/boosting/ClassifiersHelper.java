@@ -30,7 +30,7 @@ public class ClassifiersHelper {
 			return new DecisionStump();
 		}
 		if (classifierName.equals("C4.5")) {
-			String arg = "weka.classifiers.trees.J48 -C 0.4 -M 2";
+			String arg = "weka.classifiers.trees.J48 -C 0.25 -M 2";
 			J48 j48 = new J48();
 			j48.setOptions(Utils.splitOptions(arg));
 			return j48;

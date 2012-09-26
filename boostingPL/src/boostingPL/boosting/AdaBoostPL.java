@@ -28,9 +28,15 @@ public class AdaBoostPL implements Classifier {
 	private Classifier[][] classifiers;
 	private double[] corWeights;
 	
-	public AdaBoostPL(Classifier[][] classifiers, double[] corWeights) {
-		this.classifiers = classifiers;
-		this.corWeights = corWeights;
+	public AdaBoostPL(Classifier[][] classifiers, double[][] corWeights) {
+		this.classifiers = classifiers;		
+		
+		this.corWeights = new double[corWeights[0].length];
+		for (int i = 0; i < corWeights.length; i++) {
+			for (int j = 0; j < corWeights[i].length; j++) {
+				this.corWeights[j] += corWeights[i][j];
+			}
+		}		
 	}
 	
 	@Override
@@ -62,6 +68,7 @@ public class AdaBoostPL implements Classifier {
 			}
 		}
 
+		// normalize
 		for (int i = 0; i < H.length; i++) {
 			H[i] /= sum;
 		}
@@ -71,8 +78,10 @@ public class AdaBoostPL implements Classifier {
 	private int merge(Instance inst, int round, int classNum) throws Exception {
 		int[] sum = new int[classNum];
 		for (int i = 0; i < classifiers.length; i++) {
-			sum[(int)classifiers[i][round].classifyInstance(inst)] += 1;
+			int classIdx = (int)classifiers[i][round].classifyInstance(inst);
+			sum[classIdx] += 1;
 		}
+		
 		return maxIdx(sum);
 	}
 	
@@ -84,8 +93,8 @@ public class AdaBoostPL implements Classifier {
 				maxIdx = i;
 				max = a[i];
 			}
-			else if (a[i] == max) {
-				// at least two classes have same vote  
+			else if (a[i] > 0 && a[i] == max) {
+				// more than two classes have same vote  
 				return -1;
 			}
 		}
@@ -100,8 +109,8 @@ public class AdaBoostPL implements Classifier {
 				maxIdx = i;
 				max = a[i];
 			}
-			else if (a[i] == max) {
-				// at least two classes have same vote  
+			else if (a[i] > 0 && a[i] == max) {
+				// more than two classes have same vote  
 				return -1;
 			}
 		}

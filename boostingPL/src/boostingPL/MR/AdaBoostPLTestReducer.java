@@ -36,8 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import boostingPL.MR.io.ClassifierWritable;
-import boostingPL.boosting.AdaBoostPL;
 import boostingPL.boosting.InstancesHelper;
+import boostingPL.boosting.SAMMEPL;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -49,7 +49,7 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 
 	private static final Logger LOG = LoggerFactory.getLogger(AdaBoostPLTestReducer.class);
 	
-	private AdaBoostPL adaBoostPL;
+	private Classifier adaBoostPL;
 	private Evaluation eval;
 	private Instances insts;
 	
@@ -81,6 +81,7 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 			Context context) throws IOException, InterruptedException {
 		for (Text t : value) {
 			Instance inst = InstancesHelper.createInstance(t.toString(), insts);
+			//System.out.println("instance classValue" + inst.classValue());
 			try {
 				eval.evaluateModelOnceAndRecordPrediction(adaBoostPL, inst);
 			} catch (Exception e) {
@@ -94,6 +95,7 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 		System.out.println(eval.toSummaryString());
 		try {
 			System.out.println(eval.toClassDetailsString());
+			System.out.println(eval.toMatrixString());
 		} catch (Exception e) {
 			LOG.error("[AdaBoostPL-test]: Evaluation details error!");
 			e.printStackTrace();
@@ -121,20 +123,21 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 		}
 		in.close();
 		
-		System.out.println("Classifier number:" + classifiersW.size());
-		System.out.println("Iteration number:" + classifiersW.get(0).size());
+		System.out.println("Number of Worker:" + classifiersW.size());
+		System.out.println("Number of Iteration:" + classifiersW.get(0).size());
 		System.out.println();
 		
-		double[] corWeights = new double[classifiersW.get(0).size()];
+		double[][] corWeights = new double[classifiersW.size()][classifiersW.get(0).size()];
 		Classifier[][] classifiers = new Classifier[classifiersW.size()][classifiersW.get(0).size()];
 		
 		for (int i = 0; i < classifiersW.size(); i++) {
 			for (int j = 0; j < classifiersW.get(i).size(); j++) {
-				classifiers[i][j] = classifiersW.get(i).get(j).getClassifier();
-				corWeights[j] += classifiersW.get(i).get(j).getCorWeight();
+				ClassifierWritable c = classifiersW.get(i).get(j);
+				classifiers[i][j] = c.getClassifier();
+				corWeights[i][j] += c.getCorWeight();
 			}
 		}
 		
-		adaBoostPL = new AdaBoostPL(classifiers, corWeights);
+		adaBoostPL = new SAMMEPL(classifiers, corWeights);
 	}	
 }

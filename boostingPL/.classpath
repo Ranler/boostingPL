@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/weka.jar" sourcepath="/home/aax/tools/weka"/>
+	<classpathentry kind="lib" path="lib/weka.jar" sourcepath="/home/aax/workspace/java/weka"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/asm-3.2.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/avro-1.5.4.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/commons-beanutils-1.7.0.jar"/>
@@ -23,7 +23,7 @@
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-hdfs-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-app-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-common-2.0.0-cdh4.0.1.jar"/>
-	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-core-2.0.0-cdh4.0.1.jar" sourcepath="/mnt/A/home/aax/tools/hadoop-0.20-cdh3u3-src"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-core-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-jobclient-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-shuffle-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-yarn-api-2.0.0-cdh4.0.1.jar"/>

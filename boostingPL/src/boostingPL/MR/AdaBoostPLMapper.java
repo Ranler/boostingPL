@@ -37,7 +37,7 @@ import weka.core.Instances;
 
 import boostingPL.MR.io.ClassifierWritable;
 import boostingPL.boosting.AdaBoost;
-import boostingPL.boosting.AdaBoostSAMME;
+import boostingPL.boosting.SAMME;
 import boostingPL.boosting.InstancesHelper;
 import boostingPL.utils.Sort;
 
@@ -68,7 +68,7 @@ public class AdaBoostPLMapper
 		
 		int T = Integer.parseInt(context.getConfiguration().get("AdaBoostPL.numInterations"));
 	
-		AdaBoostSAMME adaBoost = new AdaBoostSAMME(insts, T);
+		SAMME adaBoost = new SAMME(insts, T);
 		Counter iterationCounter = context.getCounter("BoostingPL", "recent iterations");
 		try {
 			for (int t = 0; t < T; t++) {
