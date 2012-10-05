@@ -37,6 +37,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import boostingPL.MR.io.ClassifierWritable;
+import boostingPL.boosting.BoostingPLFactory;
 
 public class AdaBoostPLDriver extends Configured implements Tool {
 	  
@@ -51,15 +52,16 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		}
 		else {
 			System.out.print("Usage:\n"
-				+ "    train [DATASET] [MODEL] [ITERATOR_NUM] [INSTANCES_PER_NODE]\n"
-				+ "    test [DATASET] [MODEL]\n");
+				+ "    train [MODEL] [DATA_FILE] [MODEL_FILE] [INSTANCES_PER_NODE] [ITERATOR_NUM]\n"
+				+ "    test [MODEL] [DATA_FILE] [MODEL_FILE] [INSTANCES_PER_NODE]\n"
+				+ "    \nAdaBoost|SAMME");
 		}
         return exitStatus == true ? 0 : 1;		
 	}
 	
 	private boolean runTrainJob(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 		Job job = new Job(getConf());
-		job.setJobName("BoostingPL:Train "+args[1]+" "+args[2]+" "+args[3]);
+		job.setJobName("BoostingPL:Train "+args[1]+" "+args[2]+" "+args[3]+" "+args[4]+" "+args[5]);
 		job.setJarByClass(AdaBoostPLDriver.class);
 
 		job.setMapperClass(AdaBoostPLMapper.class);
@@ -71,8 +73,9 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		job.setOutputValueClass(ClassifierWritable.class);
 
 		job.setInputFormatClass(NLineInputFormat.class);
-		NLineInputFormat.addInputPath(job, new Path(args[1]));
-		Path output = new Path(args[2]);
+		NLineInputFormat.addInputPath(job, new Path(args[2]));
+		NLineInputFormat.setNumLinesPerSplit(job, Integer.parseInt(args[4]));		
+		Path output = new Path(args[3]);
 		FileSystem fs = output.getFileSystem(getConf());
 		if (fs.exists(output)) {
 			fs.delete(output, true);
@@ -80,36 +83,39 @@ public class AdaBoostPLDriver extends Configured implements Tool {
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		SequenceFileOutputFormat.setOutputPath(job, output);
 	
-		// TODO set the paras
-		NLineInputFormat.setNumLinesPerSplit(job, Integer.parseInt(args[4]));
-		job.getConfiguration().set("AdaBoostPL.numInterations", args[3]);
-		//job.getConfiguration().set("mapreduce.input.lineinputformat.linespermap", args[4]);		
-		job.getConfiguration().set("AdaBoostPL.metadata", args[1]+".metadata");
+		// TODO set the params
+		BoostingPLFactory.setBoostingPL(args[1]);
+		job.getConfiguration().set("BoostingPL.metadata", args[2]+".metadata");
+		job.getConfiguration().set("BoostingPL.numIterations", args[5]);		
+
 		
 		return job.waitForCompletion(true);
 	}
 
 	private boolean runTestJob(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 		Job job = new Job(new Configuration());
-		job.setJobName("BoostingPL:Test "+args[1]+" "+args[2]);
+		job.setJobName("BoostingPL:Test "+args[1]+" "+args[2]+" "+args[3]+" "+args[4]);
 		job.setJarByClass(AdaBoostPLDriver.class);
 		
 		job.setMapperClass(AdaBoostPLTestMapper.class);
 		job.setReducerClass(AdaBoostPLTestReducer.class);
 		job.setOutputFormatClass(NullOutputFormat.class);
 		
-		FileInputFormat.addInputPath(job, new Path(args[1]));
+		job.setInputFormatClass(NLineInputFormat.class);
+		NLineInputFormat.addInputPath(job, new Path(args[2]));
+		NLineInputFormat.setNumLinesPerSplit(job, Integer.parseInt(args[4]));		
+		
 		job.setMapOutputKeyClass(LongWritable.class);
 		job.setMapOutputValueClass(Text.class);
 		job.setOutputKeyClass(NullWritable.class);
 		job.setOutputValueClass(NullWritable.class);		
 
-		job.getConfiguration().set("AdaBoostPL.metadata", args[1]+".metadata");			
-		job.getConfiguration().set("AdaBoostPL.ClassifiersFile", args[2]);
+		job.getConfiguration().set("BoostingPL.metadata", args[2]+".metadata");			
+		job.getConfiguration().set("BoostingPL.classifiersFile", args[3]);
 	
-		
 		return job.waitForCompletion(true);
 	}	
+
 	
 	public static void main(String[] args) throws Exception {
 		int exitCode = ToolRunner.run(new Configuration(), new AdaBoostPLDriver(), args);

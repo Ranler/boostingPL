@@ -36,8 +36,8 @@ import weka.classifiers.Classifier;
 import weka.core.Instances;
 
 import boostingPL.MR.io.ClassifierWritable;
-import boostingPL.boosting.AdaBoost;
-import boostingPL.boosting.SAMME;
+import boostingPL.boosting.Boosting;
+import boostingPL.boosting.BoostingPLFactory;
 import boostingPL.boosting.InstancesHelper;
 import boostingPL.utils.Sort;
 
@@ -51,7 +51,7 @@ public class AdaBoostPLMapper
 	
 	/** create instances header */
 	protected void setup(Context context) throws IOException ,InterruptedException {
-		String pathSrc = context.getConfiguration().get("AdaBoostPL.metadata");
+		String pathSrc = context.getConfiguration().get("BoostingPL.metadata");
 		FileSystem hdfs = FileSystem.get(context.getConfiguration());
 		FSDataInputStream dis = new FSDataInputStream(hdfs.open(new Path(pathSrc)));
 		LineReader in = new LineReader(dis);
@@ -66,13 +66,16 @@ public class AdaBoostPLMapper
 	
 	protected void cleanup(Context context) throws IOException ,InterruptedException {
 		
-		int T = Integer.parseInt(context.getConfiguration().get("AdaBoostPL.numInterations"));
+		int T = Integer.parseInt(context.getConfiguration().get("BoostingPL.numIterations"));
+		System.out.println("Iteration = " + T);
 	
-		SAMME adaBoost = new SAMME(insts, T);
+		Boosting boosting = BoostingPLFactory.createBoosting(insts, T);
 		Counter iterationCounter = context.getCounter("BoostingPL", "recent iterations");
 		try {
+			System.out.println("Iteration = " + T);
 			for (int t = 0; t < T; t++) {
-				adaBoost.run(t);
+				System.out.println("Iteration = " + t);
+				boosting.run(t);
 				context.progress();
 				iterationCounter.increment(1);
 			}
@@ -81,8 +84,8 @@ public class AdaBoostPLMapper
 			return;
 		}
 
-		double[] corWeights = adaBoost.getClasifiersWeights();
-		Classifier[] classifiers = adaBoost.getClassifiers();
+		double[] corWeights = boosting.getClasifiersWeights();
+		Classifier[] classifiers = boosting.getClassifiers();
 		int taskid = context.getTaskAttemptID().getTaskID().getId();
 
 		Sort.sort(classifiers, corWeights);
@@ -93,5 +96,4 @@ public class AdaBoostPLMapper
 					new ClassifierWritable(classifiers[i], corWeights[i]));
 		}
 	}
-
 }

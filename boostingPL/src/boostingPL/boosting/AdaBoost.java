@@ -32,7 +32,7 @@ import weka.classifiers.Evaluation;
  * @author Ranler Cao  findfunaax@gmail.com
  *
  */
-public class AdaBoost {
+public class AdaBoost implements Boosting{
 
 	/** training instances */
 	private Instances insts;
@@ -68,7 +68,7 @@ public class AdaBoost {
 			return;
 		}
 		
-		classifiers[t] = ClassifiersHelper.newInstance("DecisionStump");
+		classifiers[t] = ClassifiersFactory.newInstance("DecisionStump");
 		//classifiers[t] = ClassifiersHelper.newInstance("C4.5");
 		classifiers[t].buildClassifier(insts);
 			

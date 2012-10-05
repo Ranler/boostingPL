@@ -20,22 +20,79 @@ package boostingPL.MR;
 
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.util.LineReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.core.Instance;
+import weka.core.Instances;
+import boostingPL.boosting.BoostingPLFactory;
+import boostingPL.boosting.InstancesHelper;
 
 public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
 	
 	private Counter instanceCounter;
 	
+	private Classifier boostingPL;
+	private Evaluation eval;
+	private Instances insts;	
+	
+	private static final Logger LOG = LoggerFactory.getLogger(AdaBoostPLTestMapper.class);
+	
 	protected void setup(Context context) throws IOException ,InterruptedException {
+		// classifier file
+		Path path = new Path(context.getConfiguration().get("BoostingPL.classifiersFile")
+				 + "/part-r-00000");
+		boostingPL = BoostingPLFactory.createBoostingPL(context.getConfiguration(), path);		
+		
+		// testing dataset metadata
+		String pathSrc = context.getConfiguration().get("BoostingPL.metadata");
+		FileSystem hdfs = FileSystem.get(context.getConfiguration());
+		FSDataInputStream dis = new FSDataInputStream(hdfs.open(new Path(pathSrc)));
+		LineReader in = new LineReader(dis);
+		insts = InstancesHelper.createInstancesFromMetadata(in);
+		in.close();
+		dis.close();
+		
+		try {
+			eval = new Evaluation(insts);
+		} catch (Exception e) {
+			LOG.error("[BoostingPL-Test]: Evaluation init error!");
+			e.printStackTrace();			
+		}	
+		
 		instanceCounter = context.getCounter("BoostingPL", "Number of instances");
 	}
 	
 	protected void map(LongWritable key, Text value, Context context) throws IOException ,InterruptedException {
-		instanceCounter.increment(1);
+		Instance inst = InstancesHelper.createInstance(value.toString(), insts);
+		try {
+			eval.evaluateModelOnceAndRecordPrediction(boostingPL, inst);
+		} catch (Exception e) {
+			LOG.warn("[BoostingPL-Test]: Evalute instance error!, key = " + key.get());
+			e.printStackTrace();
+		}
+		instanceCounter.increment(1);		
 		context.write(key, value);
 	}
 	
+	protected void cleanup(Context context) throws IOException ,InterruptedException {
+		System.out.println(eval.toSummaryString());
+		try {
+			System.out.println(eval.toClassDetailsString());
+			System.out.println(eval.toMatrixString());
+		} catch (Exception e) {
+			LOG.error("[BoostingPL-Test]: Evaluation details error!");
+			e.printStackTrace();
+		}
+	}
 }

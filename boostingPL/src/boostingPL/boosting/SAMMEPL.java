@@ -23,82 +23,67 @@ import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class AdaBoostPL implements Classifier {
+public class SAMMEPL implements Classifier {
 
 	private Classifier[][] classifiers;
-	private double[] corWeights;
+	private double[][] corWeights;
 	
-	public AdaBoostPL(Classifier[][] classifiers, double[][] corWeights) {
-		this.classifiers = classifiers;		
+	public SAMMEPL(Classifier[][] classifiers, double[][] corWeights) {
+		this.classifiers = classifiers;
+		this.corWeights = corWeights;
 		
-		this.corWeights = new double[corWeights[0].length];
 		for (int i = 0; i < corWeights.length; i++) {
+			int sum = 0;
 			for (int j = 0; j < corWeights[i].length; j++) {
-				this.corWeights[j] += corWeights[i][j];
+				sum += corWeights[i][j];
 			}
-		}		
+			for (int j = 0; j < corWeights[i].length; j++) {
+				corWeights[i][j] /= sum;
+			}			
+		}
 	}
 	
 	@Override
 	public void buildClassifier(Instances insts) throws Exception {}
 
+	
 	@Override
-	public double classifyInstance(Instance inst) throws Exception {
-		int classNum = inst.dataset().classAttribute().numValues();
-		double[] H = new double[classNum];
-		for (int j = 0; j < corWeights.length; j++) {
-			int classValue = merge(inst, j, classNum);
-			if (classValue >= 0) {
-				H[classValue] += corWeights[j];
-			}
-		}
-		return (double)maxIdx(H);
+	public Capabilities getCapabilities() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
+	@Override
+	public double classifyInstance(Instance inst) throws Exception {
+		return (double)maxIdx(distributionForInstance(inst));
+	}
+	
 	@Override
 	public double[] distributionForInstance(Instance inst) throws Exception {
 		int classNum = inst.dataset().classAttribute().numValues();
 		double[] H = new double[classNum];
 		double sum = 0;
-		for (int j = 0; j < corWeights.length; j++) {
-			int classValue = merge(inst, j, classNum);
-			if (classValue >= 0) {
-				H[classValue] += corWeights[j];
-				sum += corWeights[j];
+		for (int i = 0; i < classifiers.length; i++) {
+			for (int j = 0; j < classifiers[i].length; j++) {
+				int classValue = (int) classifiers[i][j].classifyInstance(inst);
+				H[classValue] += corWeights[i][j];
+				sum += corWeights[i][j];
 			}
 		}
-
+		
+		/*
+		System.out.print("instance [");
+		for (double i : H) {
+			System.out.print(" "+i+" ");
+		}
+		System.out.println("]");
+		*/
+		
 		// normalize
 		for (int i = 0; i < H.length; i++) {
 			H[i] /= sum;
 		}
 		return H;
-	}
-	
-	private int merge(Instance inst, int round, int classNum) throws Exception {
-		int[] sum = new int[classNum];
-		for (int i = 0; i < classifiers.length; i++) {
-			int classIdx = (int)classifiers[i][round].classifyInstance(inst);
-			sum[classIdx] += 1;
-		}
-		
-		return maxIdx(sum);
-	}
-	
-	private int maxIdx(int[] a) {
-		int max = -1;
-		int maxIdx = 0;
-		for (int i = 0; i < a.length; i++) {
-			if (a[i] > max) {
-				maxIdx = i;
-				max = a[i];
-			}
-			else if (a[i] > 0 && a[i] == max) {
-				// more than two classes have same vote  
-				return -1;
-			}
-		}
-		return maxIdx;
 	}
 	
 	private int maxIdx(double[] a) {
@@ -115,11 +100,5 @@ public class AdaBoostPL implements Classifier {
 			}
 		}
 		return maxIdx;
-	}	
-	
-	@Override
-	public Capabilities getCapabilities() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	}		
 }

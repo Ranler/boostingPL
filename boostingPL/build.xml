@@ -3,13 +3,13 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <jar destfile="/home/aax/xpShareSpace/boostingPL/boostingPL0.1.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="jar/boostingPL0.1.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="boostingPL.MR.AdaBoostPLDriver"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="/home/aax/git-repos/boostingPL/boostingPL/bin"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/aax/git-repos/boostingPL/boostingPL/lib/weka.jar"/>
+            <fileset dir="bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/weka.jar"/>
         	<!--
             <zipfileset excludes="META-INF/*.SF" src="/usr/lib/hadoop/client/asm-3.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/usr/lib/hadoop/client/avro-1.5.4.jar"/>

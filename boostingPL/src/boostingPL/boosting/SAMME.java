@@ -1,3 +1,21 @@
+/*
+ *   BoostingPL - Scalable and Parallel Boosting with MapReduce 
+ *   Copyright (C) 2012  Ranler Cao  findfunaax@gmail.com
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
+ */
+
 package boostingPL.boosting;
 
 import weka.classifiers.Classifier;
@@ -7,7 +25,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 
-public class SAMME implements Classifier {
+public class SAMME implements Boosting, Classifier{
 
 	/** training instances */
 	private Instances insts;
@@ -20,7 +38,6 @@ public class SAMME implements Classifier {
 	
 	/** weights for all weak classifiers */
 	private double[] cweights;
-	
 	
 	public SAMME(Instances insts, int numInterations) {
 		this.insts = insts;
@@ -43,7 +60,7 @@ public class SAMME implements Classifier {
 			return;
 		}
 		
-		classifiers[t] = ClassifiersHelper.newInstance("DecisionStump");
+		classifiers[t] = ClassifiersFactory.newInstance("DecisionStump");
 		classifiers[t].buildClassifier(insts);
 
 		double e = weightError(t);

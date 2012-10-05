@@ -18,7 +18,6 @@
 
 package boostingPL.boosting;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.ArffSaver;
 
 
 public class InstancesHelper {
@@ -124,6 +122,7 @@ public class InstancesHelper {
 		return insts;
 	}
 	
+	/*
 	private void saveInstances(Instances dataset) {
 		 ArffSaver saver = new ArffSaver();
 		 saver.setInstances(dataset);
@@ -135,5 +134,5 @@ public class InstancesHelper {
 			e.printStackTrace();
 		}
 	}
-
+	*/
 }
