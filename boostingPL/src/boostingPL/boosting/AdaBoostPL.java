@@ -36,7 +36,8 @@ public class AdaBoostPL implements Classifier {
 			for (int j = 0; j < corWeights[i].length; j++) {
 				this.corWeights[j] += corWeights[i][j];
 			}
-		}		
+			System.out.println();
+		}
 	}
 	
 	@Override
@@ -51,6 +52,7 @@ public class AdaBoostPL implements Classifier {
 			if (classValue >= 0) {
 				H[classValue] += corWeights[j];
 			}
+
 		}
 		return (double)maxIdx(H);
 	}
@@ -65,7 +67,7 @@ public class AdaBoostPL implements Classifier {
 			if (classValue >= 0) {
 				H[classValue] += corWeights[j];
 				sum += corWeights[j];
-			}
+			}	
 		}
 
 		// normalize

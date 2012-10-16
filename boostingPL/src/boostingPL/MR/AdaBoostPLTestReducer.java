@@ -20,6 +20,7 @@ package boostingPL.MR;
 import java.io.IOException;
 
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -51,9 +52,10 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 	
 	protected void setup(Context context) throws IOException ,InterruptedException {
 		// classifier file
-		Path path = new Path(context.getConfiguration().get("BoostingPL.classifiersFile")
+		Path path = new Path(context.getConfiguration().get("BoostingPL.modelPath")
 				 + "/part-r-00000");
-		boostingPL = BoostingPLFactory.createBoostingPL(context.getConfiguration(), path);		
+		String boostingName = context.getConfiguration().get("BoostingPL.boostingName");		
+		boostingPL = BoostingPLFactory.createBoostingPL(boostingName, context.getConfiguration(), path);		
 		
 		// testing dataset metadata
 		String pathSrc = context.getConfiguration().get("BoostingPL.metadata");
@@ -76,7 +78,6 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 			Context context) throws IOException, InterruptedException {
 		for (Text t : value) {
 			Instance inst = InstancesHelper.createInstance(t.toString(), insts);
-			//System.out.println("instance classValue" + inst.classValue());
 			try {
 				eval.evaluateModelOnceAndRecordPrediction(boostingPL, inst);
 			} catch (Exception e) {
@@ -91,9 +92,30 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 		try {
 			System.out.println(eval.toClassDetailsString());
 			System.out.println(eval.toMatrixString());
+			output2HDFS(context);
 		} catch (Exception e) {
 			LOG.error("[BoostingPL-Test]: Evaluation details error!");
 			e.printStackTrace();
 		}
+	}
+	
+	private void output2HDFS(Context context) throws Exception {
+		int taskID = context.getTaskAttemptID().getTaskID().getId();
+		String outputFloder = context.getConfiguration().get("BoostingPL.outputPath");
+		
+		Path path = new Path(outputFloder+"/result_r_"+taskID);
+		FileSystem hdfs = FileSystem.get(context.getConfiguration());
+		FSDataOutputStream outputStream = hdfs.create(path);
+		
+		String result = eval.toSummaryString();
+		outputStream.write(result.getBytes());	
+		result = eval.toClassDetailsString();
+		outputStream.write(result.getBytes());
+		result = eval.toMatrixString();
+		outputStream.write(result.getBytes());
+		result = "-----------------------------------------------------------";
+		outputStream.write(result.getBytes());		
+		
+		outputStream.close();
 	}
 }

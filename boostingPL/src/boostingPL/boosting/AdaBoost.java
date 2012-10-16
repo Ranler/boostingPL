@@ -20,6 +20,7 @@ package boostingPL.boosting;
 
 import java.lang.Math;
 
+import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
@@ -32,7 +33,7 @@ import weka.classifiers.Evaluation;
  * @author Ranler Cao  findfunaax@gmail.com
  *
  */
-public class AdaBoost implements Boosting{
+public class AdaBoost implements Boosting, Classifier{
 
 	/** training instances */
 	private Instances insts;
@@ -74,10 +75,13 @@ public class AdaBoost implements Boosting{
 			
 		double e = weightError(t);
 		if(e >= 0.5) {
-			System.out.println("Error: error rate = " + e + ", >= 0.5");
+			System.out.println("AdaBoost Error: error rate = " + e + ", >= 0.5");
 			throw new Exception("error rate > 0.5");
 		}
-			
+	
+		if (e == 0.0) {
+			e = 0.0001; // dont let e == 0
+		}
 		cweights[t] = 0.5 * Math.log((1-e)/e) / Math.log(Math.E);
 		System.out.println("Round = " + t
 				+ "\t ErrorRate = " + e 
@@ -108,6 +112,7 @@ public class AdaBoost implements Boosting{
 		return eval.errorRate();
 	}
 	
+	@Override	
 	public double classifyInstance(Instance inst) throws Exception {
 		int classNum = inst.dataset().classAttribute().numValues();
 		double[] H = new double[classNum];
@@ -118,6 +123,24 @@ public class AdaBoost implements Boosting{
 			}
 		}
 		return (double)maxIdx(H);
+	}
+	
+	@Override
+	public double[] distributionForInstance(Instance inst) throws Exception {
+		int classNum = inst.dataset().classAttribute().numValues();
+		double[] H = new double[classNum];
+		double sum = 0;
+		for (int j = 0; j < numIterations; j++) {
+			int classValue = (int)classifiers[j].classifyInstance(inst);
+			H[classValue] += cweights[j];
+			sum += cweights[j];
+		}
+
+		// normalize
+		for (int i = 0; i < H.length; i++) {
+			H[i] /= sum;
+		}
+		return H;
 	}
 	
 	private int maxIdx(double[] a) {
@@ -137,7 +160,7 @@ public class AdaBoost implements Boosting{
 	}		
 	
 	public static void main(String[] args) throws Exception {
-		java.io.File inputFile = new java.io.File("/home/aax/xpShareSpace/boostingPL/RDG2-100-2.arff");
+		java.io.File inputFile = new java.io.File("/home/aax/xpShareSpace/dataset/single-class/+winered/winequality-red.datatrain1.arff");
 		ArffLoader atf = new ArffLoader();
 		atf.setFile(inputFile);
 		Instances training = atf.getDataSet();
@@ -147,16 +170,42 @@ public class AdaBoost implements Boosting{
 		for (int t = 0; t < 100; t++) {
 			adaBoost.run(t);			
 		}
-
 		
+		java.io.File inputFilet = new java.io.File("/home/aax/xpShareSpace/dataset/single-class/+winered/winequality-red.datatest1.arff");
+		ArffLoader atft = new ArffLoader();
+		atft.setFile(inputFilet);
+		Instances testing = atft.getDataSet();
+		testing.setClassIndex(testing.numAttributes()-1);		
+
+		Evaluation eval = new Evaluation(testing);
+		for (Instance inst : testing) {
+			eval.evaluateModelOnceAndRecordPrediction(adaBoost, inst);
+		}
+		System.out.println(eval.toSummaryString());
+		System.out.println(eval.toClassDetailsString());
+		System.out.println(eval.toMatrixString());				
+		
+		/*
 		int right = 0;
-		for (int i = 0; i < training.numInstances(); i++) {
-			Instance inst = training.instance(i);
+		for (int i = 0; i < testing.numInstances(); i++) {
+			Instance inst = testing.instance(i);
 			if (adaBoost.classifyInstance(inst) == inst.classValue()) {
 				right++;
 			}
 		}
 		System.out.println(right);
-		System.out.println((double)right/training.numInstances());		
+		System.out.println((double)right/training.numInstances());
+		*/
+	}
+
+	@Override
+	public void buildClassifier(Instances data) throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public Capabilities getCapabilities() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

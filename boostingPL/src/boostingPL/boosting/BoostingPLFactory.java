@@ -33,13 +33,7 @@ import boostingPL.MR.io.ClassifierWritable;
 
 public class BoostingPLFactory {
 	
-	private static String name = "AdaBoost";
-	
-	public static void setBoostingPL(String name) {
-		BoostingPLFactory.name = name;
-	}
-	
-	public static Classifier createBoostingPL(Configuration conf, Path path) throws IOException {
+	public static Classifier createBoostingPL(String name, Configuration conf, Path path) throws IOException {
 		FileSystem hdfs = FileSystem.get(conf);
 		@SuppressWarnings("deprecation")
 		SequenceFile.Reader in = new SequenceFile.Reader(hdfs, path, conf);
@@ -75,17 +69,17 @@ public class BoostingPLFactory {
 			}
 		}
 		
-		return createBoostingPL(classifiers, corWeights);
+		return createBoostingPL(name, classifiers, corWeights);
 	}
 	
-	public static Classifier createBoostingPL(Classifier[][] classifiers, double[][] corWeights) {
+	public static Classifier createBoostingPL(String name, Classifier[][] classifiers, double[][] corWeights) {
 		if (name.equals("SAMME")){
 			return new SAMMEPL(classifiers, corWeights);
 		}
 		return new AdaBoostPL(classifiers, corWeights);
 	}
 	
-	public static Boosting createBoosting(Instances insts, int numInterations) {
+	public static Boosting createBoosting(String name, Instances insts, int numInterations) {
 		if (name.equals("SAMME")){
 			return new SAMME(insts, numInterations);
 		}

@@ -16,15 +16,14 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   
  */
 
-package boostingPL.boosting;
 
-import weka.classifiers.Classifier;
+package boostingPL.driver;
 
-public interface Boosting {
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.Tool;
 
-	public void run(int t) throws Exception;
+
+public abstract class AbstractJob extends Configured implements Tool {
 	
-	public Classifier[] getClassifiers();
-	
-	public double[] getClasifiersWeights();
+
 }

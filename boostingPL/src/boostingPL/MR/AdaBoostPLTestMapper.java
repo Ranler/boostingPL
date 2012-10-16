@@ -21,6 +21,7 @@ package boostingPL.MR;
 import java.io.IOException;
 
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -50,9 +51,10 @@ public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritabl
 	
 	protected void setup(Context context) throws IOException ,InterruptedException {
 		// classifier file
-		Path path = new Path(context.getConfiguration().get("BoostingPL.classifiersFile")
+		Path path = new Path(context.getConfiguration().get("BoostingPL.modelPath")
 				 + "/part-r-00000");
-		boostingPL = BoostingPLFactory.createBoostingPL(context.getConfiguration(), path);		
+		String boostingName = context.getConfiguration().get("BoostingPL.boostingName");		
+		boostingPL = BoostingPLFactory.createBoostingPL(boostingName, context.getConfiguration(), path);		
 		
 		// testing dataset metadata
 		String pathSrc = context.getConfiguration().get("BoostingPL.metadata");
@@ -68,8 +70,7 @@ public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritabl
 		} catch (Exception e) {
 			LOG.error("[BoostingPL-Test]: Evaluation init error!");
 			e.printStackTrace();			
-		}	
-		
+		}
 		instanceCounter = context.getCounter("BoostingPL", "Number of instances");
 	}
 	
@@ -90,9 +91,30 @@ public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritabl
 		try {
 			System.out.println(eval.toClassDetailsString());
 			System.out.println(eval.toMatrixString());
+			output2HDFS(context);
 		} catch (Exception e) {
 			LOG.error("[BoostingPL-Test]: Evaluation details error!");
 			e.printStackTrace();
 		}
+	}
+	
+	private void output2HDFS(Context context) throws Exception {
+		int taskID = context.getTaskAttemptID().getTaskID().getId();
+		String outputFloder = context.getConfiguration().get("BoostingPL.outputPath");
+		Path path = new Path(outputFloder+"/result_m_"+taskID);		
+
+		FileSystem hdfs = FileSystem.get(context.getConfiguration());
+		FSDataOutputStream outputStream = hdfs.create(path);
+		
+		String result = eval.toSummaryString();
+		outputStream.write(result.getBytes());	
+		result = eval.toClassDetailsString();
+		outputStream.write(result.getBytes());
+		result = eval.toMatrixString();
+		outputStream.write(result.getBytes());
+		result = "-----------------------------------------------------------";
+		outputStream.write(result.getBytes());		
+		
+		outputStream.close();
 	}
 }

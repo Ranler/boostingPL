@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/commons-net-3.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/guava-11.0.2.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-auth-2.0.0-cdh4.0.1.jar"/>
-	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-common-2.0.0-cdh4.0.1.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-common-2.0.0-cdh4.0.1.jar" sourcepath="/home/aax/tools/hadoop-0.20-cdh3u3-src"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-hdfs-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-app-2.0.0-cdh4.0.1.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-common-2.0.0-cdh4.0.1.jar"/>

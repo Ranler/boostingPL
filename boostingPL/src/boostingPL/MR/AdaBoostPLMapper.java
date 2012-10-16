@@ -65,24 +65,23 @@ public class AdaBoostPLMapper
 	}
 	
 	protected void cleanup(Context context) throws IOException ,InterruptedException {
-		
 		int T = Integer.parseInt(context.getConfiguration().get("BoostingPL.numIterations"));
 		System.out.println("Iteration = " + T);
-	
-		Boosting boosting = BoostingPLFactory.createBoosting(insts, T);
-		Counter iterationCounter = context.getCounter("BoostingPL", "recent iterations");
+		
+		String boostingName = context.getConfiguration().get("BoostingPL.boostingName");
+		Boosting boosting = BoostingPLFactory.createBoosting(boostingName, insts, T);
+		Counter iterationCounter = context.getCounter("BoostingPL", "current iterations");
 		try {
-			System.out.println("Iteration = " + T);
 			for (int t = 0; t < T; t++) {
-				System.out.println("Iteration = " + t);
 				boosting.run(t);
 				context.progress();
 				iterationCounter.increment(1);
-			}
+			}	
 		} catch (Exception e) {
 			LOG.error(e.toString());
 			return;
 		}
+
 
 		double[] corWeights = boosting.getClasifiersWeights();
 		Classifier[] classifiers = boosting.getClassifiers();

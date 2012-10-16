@@ -67,10 +67,13 @@ public class SAMME implements Boosting, Classifier{
 		final int numClasses = insts.classAttribute().numValues();
 		double maxe = 1 - 1.0 / numClasses;
 		if (e >= maxe) {
-			System.out.println("Error: error rate = " + e + ", >= " + maxe);
+			System.out.println("SAMME Error: error rate = " + e + ", >= " + maxe);
 			throw new Exception("error rate > " + maxe);
 		}
 
+		if (e == 0.0) {
+			e = 0.0001; // dont let e == 0
+		}		
 		cweights[t] = Math.log((1 - e) / e) + Math.log(numClasses - 1);
 		System.out.println("Round = " + t 
 				+ "\tErrorRate = " + e
@@ -153,21 +156,25 @@ public class SAMME implements Boosting, Classifier{
 		return H;
 	}
 	
-	
-	
 	public static void main(String[] args) throws Exception {
 		java.io.File inputFile = new java.io.File(args[0]);
 		ArffLoader atf = new ArffLoader();
 		atf.setFile(inputFile);
 		Instances training = atf.getDataSet();
 		training.setClassIndex(training.numAttributes()-1);
-		Instances testing = new Instances(training);
+		//Instances testing = new Instances(training);
 		
-		int iterationNum = Integer.parseInt(args[1]);
+		int iterationNum = 100;
 		SAMME samme = new SAMME(training, iterationNum);
 		for (int t = 0; t < iterationNum; t++) {
 			samme.run(t);			
 		}
+		
+		java.io.File inputFilet = new java.io.File(args[1]);
+		ArffLoader atft = new ArffLoader();
+		atft.setFile(inputFilet);
+		Instances testing = atft.getDataSet();
+		testing.setClassIndex(testing.numAttributes()-1);	
 		
 		Evaluation eval = new Evaluation(testing);
 		for (Instance inst : testing) {
