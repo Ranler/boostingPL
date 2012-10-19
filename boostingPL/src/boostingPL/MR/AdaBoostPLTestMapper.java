@@ -99,10 +99,11 @@ public class AdaBoostPLTestMapper extends Mapper<LongWritable, Text, LongWritabl
 	}
 	
 	private void output2HDFS(Context context) throws Exception {
+		int jobID = context.getJobID().getId();		
 		int taskID = context.getTaskAttemptID().getTaskID().getId();
-		String outputFloder = context.getConfiguration().get("BoostingPL.outputPath");
-		Path path = new Path(outputFloder+"/result_m_"+taskID);		
+		String outputFloder = context.getConfiguration().get("BoostingPL.outputFolder");
 
+		Path path = new Path(outputFloder+"/result_"+jobID+"_m_"+taskID);		
 		FileSystem hdfs = FileSystem.get(context.getConfiguration());
 		FSDataOutputStream outputStream = hdfs.create(path);
 		

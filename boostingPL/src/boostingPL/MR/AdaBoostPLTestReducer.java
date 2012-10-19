@@ -100,10 +100,11 @@ public class AdaBoostPLTestReducer extends Reducer<LongWritable, Text, NullWrita
 	}
 	
 	private void output2HDFS(Context context) throws Exception {
+		int jobID = context.getJobID().getId();
 		int taskID = context.getTaskAttemptID().getTaskID().getId();
-		String outputFloder = context.getConfiguration().get("BoostingPL.outputPath");
-		
-		Path path = new Path(outputFloder+"/result_r_"+taskID);
+		String outputFloder = context.getConfiguration().get("BoostingPL.outputFolder");
+
+		Path path = new Path(outputFloder+"/result_"+jobID+"_r_"+taskID);
 		FileSystem hdfs = FileSystem.get(context.getConfiguration());
 		FSDataOutputStream outputStream = hdfs.create(path);
 		

@@ -20,6 +20,8 @@ package boostingPL.boosting;
 
 import java.lang.Math;
 
+import boosting.classifiers.ClassifierWritable;
+
 import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -69,7 +71,7 @@ public class AdaBoost implements Boosting, Classifier{
 			return;
 		}
 		
-		classifiers[t] = ClassifiersFactory.newInstance("DecisionStump");
+		classifiers[t] = ClassifierWritable.newInstance("DecisionStump");
 		//classifiers[t] = ClassifiersHelper.newInstance("C4.5");
 		classifiers[t].buildClassifier(insts);
 			
@@ -80,7 +82,7 @@ public class AdaBoost implements Boosting, Classifier{
 		}
 	
 		if (e == 0.0) {
-			e = 0.0001; // dont let e == 0
+			e = 0.0001; // don't let e == 0
 		}
 		cweights[t] = 0.5 * Math.log((1-e)/e) / Math.log(Math.E);
 		System.out.println("Round = " + t

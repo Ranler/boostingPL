@@ -27,9 +27,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 
+import boosting.classifiers.ClassifierWritable;
+
 import weka.classifiers.Classifier;
 import weka.core.Instances;
-import boostingPL.MR.io.ClassifierWritable;
 
 public class BoostingPLFactory {
 	

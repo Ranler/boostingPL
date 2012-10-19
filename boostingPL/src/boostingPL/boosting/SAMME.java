@@ -18,6 +18,7 @@
 
 package boostingPL.boosting;
 
+import boosting.classifiers.ClassifierWritable;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Capabilities;
@@ -60,7 +61,7 @@ public class SAMME implements Boosting, Classifier{
 			return;
 		}
 		
-		classifiers[t] = ClassifiersFactory.newInstance("DecisionStump");
+		classifiers[t] = ClassifierWritable.newInstance("DecisionStump");
 		classifiers[t].buildClassifier(insts);
 
 		double e = weightError(t);

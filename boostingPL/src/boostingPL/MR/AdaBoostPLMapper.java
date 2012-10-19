@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 
-import boostingPL.MR.io.ClassifierWritable;
+import boosting.classifiers.ClassifierWritable;
 import boostingPL.boosting.Boosting;
 import boostingPL.boosting.BoostingPLFactory;
 import boostingPL.boosting.InstancesHelper;

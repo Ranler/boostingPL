@@ -38,10 +38,10 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import boosting.classifiers.ClassifierWritable;
 import boostingPL.MR.AdaBoostPLMapper;
 import boostingPL.MR.AdaBoostPLTestMapper;
 import boostingPL.MR.AdaBoostPLTestReducer;
-import boostingPL.MR.io.ClassifierWritable;
 
 public class SAMMEPLDriver extends AbstractJob {
 	

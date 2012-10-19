@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -38,10 +37,10 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import boosting.classifiers.ClassifierWritable;
 import boostingPL.MR.AdaBoostPLMapper;
 import boostingPL.MR.AdaBoostPLTestMapper;
 import boostingPL.MR.AdaBoostPLTestReducer;
-import boostingPL.MR.io.ClassifierWritable;
 
 public  class AdaBoostPLDriver extends AbstractJob{
 	
@@ -78,13 +77,7 @@ public  class AdaBoostPLDriver extends AbstractJob{
 		
 		job.setInputFormatClass(NLineInputFormat.class);
 		NLineInputFormat.addInputPath(job, dataPath);
-		NLineInputFormat.setNumLinesPerSplit(job, numLinesPerMap);		
-		FileSystem fs = modelPath.getFileSystem(getConf());
-		if (fs.exists(modelPath)) {
-			fs.delete(modelPath, true);
-		}
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		SequenceFileOutputFormat.setOutputPath(job, modelPath);		
+		NLineInputFormat.setNumLinesPerSplit(job, numLinesPerMap);
 
 		if (runModel.equals("train")) {
 			job.setMapperClass(AdaBoostPLMapper.class);
@@ -92,7 +85,10 @@ public  class AdaBoostPLDriver extends AbstractJob{
 			job.setMapOutputKeyClass(IntWritable.class);
 			job.setMapOutputValueClass(ClassifierWritable.class);
 			job.setOutputKeyClass(IntWritable.class);
-			job.setOutputValueClass(ClassifierWritable.class);		
+			job.setOutputValueClass(ClassifierWritable.class);
+			
+			job.setOutputFormatClass(SequenceFileOutputFormat.class);
+			SequenceFileOutputFormat.setOutputPath(job, modelPath);			
 		} else {
 			job.setMapperClass(AdaBoostPLTestMapper.class);
 			job.setReducerClass(AdaBoostPLTestReducer.class);
