@@ -56,7 +56,7 @@ public class SAMMEPLDriver extends AbstractJob {
 	private int numIterations;
 	
 	public static void main(String[] args) throws Exception {
-		int status = ToolRunner.run(new Configuration(), (Tool) new AdaBoostPLDriver(), args);
+		int status = ToolRunner.run(new Configuration(), (Tool) new SAMMEPLDriver(), args);
 		System.exit(status);
 	}
 
@@ -69,7 +69,7 @@ public class SAMMEPLDriver extends AbstractJob {
 		
 		@SuppressWarnings("deprecation")
 		Job job = new Job(getConf());
-		job.setJobName("AdaBoostPL:" + runModel + " " 
+		job.setJobName("SAMMEPL:" + runModel + " " 
 				+ dataPath.toString() + " "
 				+ modelPath.toString() + " "
 				+ numLinesPerMap + " "

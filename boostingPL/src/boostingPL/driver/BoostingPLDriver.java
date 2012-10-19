@@ -33,7 +33,7 @@ public class BoostingPLDriver {
 		
 		addClass(programDriver, "boostingPL.driver.AdaBoostPLDriver",
 				"AdaBoostPL:Parallel boosting for binary classifier problem");
-		addClass(programDriver, "boostingPL.driver.AdaBoostPLDriver",
+		addClass(programDriver, "boostingPL.driver.SAMMEPLDriver",
 				"SAMMEPL:Parallel boosting for multiclass classifier problem");		
 		
 	    programDriver.driver(args);
